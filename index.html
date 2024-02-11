@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuranStash</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: rgb(4, 1, 0);
+      color: white;
+      text-align: center;
+    }
+    .navbar {
+      background-color: black;
+      padding: 15px;
+      text-align: center;
+    }
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .card {
+      background-color: white;
+      padding: 50px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      max-width: 700px;
+      text-align: center;
+    }
+    /* Adjust text color for better readability */
+    .card p {
+      color: black;
+      font-size: 20px;
+    }
+    #arabicText {
+      font-family: 'IndoPak', sans-serif; /* Specify IndoPak font */
+      font-size: 35px; /* Change Arabic text size */
+      direction: rtl; /* Right-to-left text direction */
+    }
+    @font-face {
+      font-family: 'IndoPak';
+      src: url('IndoPak.woff2') format('woff2'); /* Path to the IndoPak font file */
+    }
+    .verse-number {
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .end-tag {
+      font-family: 'IndoPak', sans-serif; /* Apply IndoPak font */
+      font-size: 35px; /* Match Arabic text size */
+      margin-right: 5px; /* Add some space between the Arabic text and the end tag */
+    }
+    .audio-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 20px;
+      border: transparent solid 10px; /* Invisible border box */
+    }
+    .audio-bar .line {
+      width: 80%;
+      height: 1px;
+      background-color: black;
+      margin: 0 10px;
+      position: relative;
+    }
+    .audio-bar .progress {
+      width: 0;
+      height: 100%;
+      background-color: red;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    .audio-bar button {
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+      outline: none;
+      font-size: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <a href="#">QuranStash</a>
+    <a href="#">DuaStash</a>
+  </div>
+  <div class="container">
+    <div class="card" id="quoteCard">
+      <p class="verse-number">(2:255)</p>
+      <p id="arabicText">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ<span class="end-tag">۞</span></p>
+      <p id="quoteText">In the name of Allah, the Most Gracious, the Most Merciful.</p>
+      <div class="audio-bar">
+        <div class="line">
+          <div class="progress"></div>
+        </div>
+        <button id="playButton">&#x25B6;</button>
+      </div>
+    </div>
+  </div>
+
+  <audio id="audioPlayer" src=""></audio>
+  
+  <script src="data.js"></script>
+  <script>
+    const quoteCard = document.getElementById("quoteCard");
+    const playButton = document.getElementById("playButton");
+    const progressBar = document.querySelector(".progress");
+    const audioPlayer = document.getElementById("audioPlayer");
+    const audioBar = document.querySelector(".audio-bar");
+
+    function displayRandomQuote() {
+      const randomIndex = Math.floor(Math.random() * quotesData.quotes.length);
+      const quote = quotesData.quotes[randomIndex];
+      const verseNumber = quote['verse-number'];
+      const arabicText = quote['arabic-text'];
+      const endTag = quote['end'];
+      const translation = quote['translation'];
+      const mp3 = quote['mp3'];
+
+      document.querySelector(".verse-number").textContent = verseNumber;
+      document.getElementById("arabicText").innerHTML = `${arabicText}<span class="end-tag">${endTag}</span>`;
+      document.getElementById("quoteText").textContent = translation;
+      audioPlayer.src = mp3;
+      resetAudioPlayer();
+    }
+
+    function resetAudioPlayer() {
+      audioPlayer.pause();
+      audioPlayer.currentTime = 0;
+      playButton.textContent = "▶";
+      progressBar.style.width = "0%";
+    }
+
+    playButton.addEventListener("click", () => {
+      if (audioPlayer.paused) {
+        audioPlayer.play();
+        playButton.textContent = "⏸";
+        animateProgressBar();
+      } else {
+        audioPlayer.pause();
+        playButton.textContent = "▶";
+      }
+    });
+
+    function animateProgressBar() {
+      const duration = audioPlayer.duration;
+      let currentTime = audioPlayer.currentTime;
+      const animationId = requestAnimationFrame(animate);
+      
+      function animate() {
+        const progressWidth = (currentTime / duration) * 100 + "%";
+        progressBar.style.width = progressWidth;
+        currentTime = audioPlayer.currentTime;
+        
+        if (!audioPlayer.paused) {
+          requestAnimationFrame(animate);
+        }
+      }
+    }
+
+    // Display a random quote when the page loads
+    displayRandomQuote();
+
+    // Switch quote card when clicking inside the card but not inside the audio controls
+    document.body.addEventListener("click", (event) => {
+      if (!audioBar.contains(event.target) && quoteCard.contains(event.target)) {
+        displayRandomQuote();
+      }
+    });
+  </script>
+</body>
+</html>

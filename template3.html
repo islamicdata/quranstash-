@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuranStash</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: rgb(4, 1, 0);
+      color: white;
+      text-align: center;
+    }
+    .navbar {
+      background-color: black;
+      padding: 15px;
+      text-align: center;
+    }
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column; /* Added to stack elements vertically */
+      height: 100vh;
+    }
+    .card {
+      background-color: white;
+      padding: 50px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      max-width: 700px;
+      text-align: center;
+      cursor: pointer; /* Add cursor pointer to indicate it's clickable */
+      margin-bottom: 20px;
+    }
+    /* Adjust text color for better readability */
+    .card p {
+      color: black;
+      font-size: 20px;
+    }
+    #arabicText {
+      font-family: 'IndoPak', sans-serif; /* Specify IndoPak font */
+      font-size: 35px; /* Change Arabic text size */
+      direction: rtl; /* Right-to-left text direction */
+    }
+    @font-face {
+      font-family: 'IndoPak';
+      src: url('IndoPak.woff2') format('woff2'); /* Path to the IndoPak font file */
+    }
+    .verse-number {
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .end-tag {
+      font-family: 'IndoPak', sans-serif; /* Apply IndoPak font */
+      font-size: 35px; /* Match Arabic text size */
+      margin-right: 5px; /* Add some space between the Arabic text and the end tag */
+    }
+    .audio-controls-box {
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      display: flex;
+      justify-content: center; /* Center the audio controls horizontally */
+      min-width: 200px; /* Minimum width to prevent shrinking too much */
+    }
+    .audio-controls {
+      width: 100%; /* Make the audio controls fill the box horizontally */
+    }
+    .audio-controls .line {
+      width: 80%;
+      height: 1px;
+      background-color: black;
+      margin: 10px auto; /* Center the line */
+      position: relative;
+    }
+    .audio-controls .progress {
+      width: 0;
+      height: 100%;
+      background-color: red;
+      position: absolute;
+      top: 0;
+      left: 0;
+      transition: width 0.1s ease-in-out; /* Add transition for smooth animation */
+    }
+    .audio-controls button {
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+      outline: none;
+      font-size: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <a href="#">QuranStash</a>
+    <a href="#">DuaStash</a>
+  </div>
+  <div class="container" id="quoteContainer">
+    <!-- Quotes will be dynamically added here -->
+  </div>
+
+  <audio id="audioPlayer" src=""></audio>
+  
+  <script src="data.js"></script>
+  <script>
+    const quoteContainer = document.getElementById("quoteContainer");
+    const audioPlayer = document.getElementById("audioPlayer");
+    let isDragging = false; // Variable to track if the progress bar is being dragged
+
+    function displayRandomQuote() {
+      const randomIndex = Math.floor(Math.random() * quotesData.quotes.length);
+      const quote = quotesData.quotes[randomIndex];
+      const verseNumber = quote['verse-number'];
+      const arabicText = quote['arabic-text'];
+      const endTag = quote['end'];
+      const translation = quote['translation'];
+      const mp3 = quote['mp3'];
+
+      const card = document.createElement('div');
+      card.classList.add('card');
+      card.innerHTML = `
+        <p class="verse-number">${verseNumber}</p>
+        <p id="arabicText">${arabicText}<span class="end-tag">${endTag}</span></p>
+        <p id="quoteText">${translation}</p>
+      `;
+      quoteContainer.innerHTML = '';
+      quoteContainer.appendChild(card);
+
+      const audioControlsBox = document.createElement('div');
+      audioControlsBox.classList.add('audio-controls-box');
+      audioControlsBox.innerHTML = `
+        <div class="audio-controls">
+          <div class="line">
+            <div class="progress"></div>
+          </div>
+          <button class="playButton">&#x25B6;</button>
+        </div>
+      `;
+      quoteContainer.appendChild(audioControlsBox);
+
+      const playButton = audioControlsBox.querySelector('.playButton');
+      const progressBar = audioControlsBox.querySelector('.progress');
+
+      playButton.addEventListener("click", () => {
+        if (audioPlayer.paused) {
+          audioPlayer.src = mp3;
+          audioPlayer.play();
+          playButton.innerHTML = "&#x23F8;";
+          animateProgressBar();
+        } else {
+          audioPlayer.pause();
+          playButton.innerHTML = "&#x25B6;";
+        }
+      });
+
+      progressBar.addEventListener('mousedown', (event) => {
+        isDragging = true;
+        updateProgress(event);
+      });
+
+      document.addEventListener('mouseup', () => {
+        isDragging = false;
+      });
+
+      progressBar.addEventListener('mousemove', (event) => {
+        if (isDragging) {
+          updateProgress(event);
+        }
+      });
+
+      function updateProgress(event) {
+        const rect = progressBar.getBoundingClientRect();
+        const progressWidth = Math.min(100, Math.max(0, ((event.clientX - rect.left) / rect.width) * 100));
+        progressBar.style.width = progressWidth + '%';
+        const duration = audioPlayer.duration;
+        audioPlayer.currentTime = (progressWidth / 100) * duration;
+      }
+
+      function animateProgressBar() {
+        const duration = audioPlayer.duration;
+        const animationId = requestAnimationFrame(animate);
+
+        function animate() {
+          if (!audioPlayer.paused) {
+            const currentTime = audioPlayer.currentTime;
+            const progressWidth = (currentTime / duration) * 100 + "%";
+            progressBar.style.width = progressWidth;
+            requestAnimationFrame(animate);
+          }
+        }
+      }
+
+      audioPlayer.addEventListener('ended', () => {
+        playButton.innerHTML = "&#x25B6;";
+        progressBar.style.width = "0%";
+      });
+
+      // Dynamically adjust the width of the audio controls box to match the width of the quote card
+      const cardWidth = card.offsetWidth;
+      audioControlsBox.style.width = `${cardWidth}px`;
+    }
+
+    // Display a random quote when the page loads
+    displayRandomQuote();
+
+    // Add event listener to change quote when clicking the card
+    quoteContainer.addEventListener("click", () => {
+      displayRandomQuote();
+    });
+
+    // Dynamically adjust the width of the audio controls box when the window is resized
+    window.addEventListener('resize', () => {
+      const cardWidth = quoteContainer.querySelector('.card').offsetWidth;
+      const audioControlsBox = quoteContainer.querySelector('.audio-controls-box');
+      audioControlsBox.style.width = `${cardWidth}px`;
+    });
+  </script>
+</body>
+</html>

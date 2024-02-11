@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuranStash</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: rgb(4, 1, 0);
+      color: white;
+      text-align: center;
+    }
+    .navbar {
+      background-color: black;
+      padding: 15px;
+      text-align: center;
+    }
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .card {
+      background-color: white;
+      padding: 50px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      max-width: 700px;
+      text-align: center;
+    }
+    /* Adjust text color for better readability */
+    .card p {
+      color: black;
+      font-size: 20px;
+    }
+    #arabicText {
+      font-family: 'IndoPak', sans-serif; /* Specify IndoPak font */
+      font-size: 35px;
+    }
+    @font-face {
+      font-family: 'IndoPak';
+      src: url('IndoPak.woff2') format('woff2'); /* Path to the IndoPak font file */
+    }
+    .verse-number {
+      font-weight: bold;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <a href="#">QuranStash</a>
+    <a href="#">DuaStash</a>
+  </div>
+  <div class="container">
+    <div class="card" id="quoteCard">
+      <p class="verse-number">(2:255)</p>
+      <p id="arabicText">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p>
+      <p id="quoteText">In the name of Allah, the Most Gracious, the Most Merciful.</p>
+    </div>
+  </div>
+
+  <script>
+    const quotes = [
+      { verse: "(2:255)", arabic: "فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ", english: "So remember Me; I will remember you. And be grateful to Me and do not deny Me." },
+      { verse: "(2:185)", arabic: "شَهْرُ رَمَضَانَ الَّذِيَ أُنزِلَ فِيهِ الْقُرْآنُ هُدًى لِّلنَّاسِ وَبَيِّنَاتٍ مِّنَ الْهُدَىٰ وَالْفُرْقَانِ ۚ فَمَن شَهِدَ مِنكُمُ الشَّهْرَ فَلْيَصُمْهُ ۖ وَمَن كَانَ مَرِيضًا أَوْ عَلَىٰ سَفَرٍ فَعِدَّةٌ مِّنْ أَيَّامٍ أُخَرَ ۗ يُرِيدُ اللَّهُ بِكُمُ الْيُسْرَ وَلَا يُرِيدُ بِكُمُ الْعُسْرَ وَلِتُكْمِلُوا الْعِدَّةَ وَلِتُكَبِّرُوا اللَّهَ عَلَىٰ مَا هَدَاكُمْ وَلَعَلَّكُمْ تَشْكُرُونَ", english: "The month of Ramadhan [is that] in which was revealed the Qur'an, a guidance for the people and clear proofs of guidance and criterion. So whoever sights [the new moon of] the month, let him fast it; and whoever is ill or on a journey - then an equal number of days [are to be made up]. Allah intends for you ease and does not intend for you hardship and [wants] for you to complete the period and to glorify Allah for that [to] which He has guided you, and perhaps you will be grateful." },
+      { verse: "(3:19)", arabic: "إِنَّ الدِّينَ عِندَ اللَّهِ الْإِسْلَامُ ۗ وَمَا اخْتَلَفَ الَّذِينَ أُوتُوا الْكِتَابَ إِلَّا مِن بَعْدِ مَا جَاءَهُمُ الْعِلْمُ بَغْيًا بَيْنَهُمْ ۗ وَمَن يَكْفُرْ بِآيَاتِ اللَّهِ فَإِنَّ اللَّهَ سَرِيعُ الْحِسَابِ", english: "Indeed, the religion in the sight of Allah is Islam. And those who were given the Scripture did not differ except after knowledge had come to them - out of jealous animosity between themselves. And whoever disbelieves in the verses of Allah, then indeed, Allah is swift in [taking] account." },
+      // Add more quotes here
+    ];
+
+    const quoteCard = document.getElementById("quoteCard");
+    const verseNumber = document.querySelector(".verse-number");
+    const arabicText = document.getElementById("arabicText");
+    const quoteText = document.getElementById("quoteText");
+    let currentQuoteIndex = 0;
+
+    function displayNextQuote() {
+      currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
+      verseNumber.textContent = quotes[currentQuoteIndex].verse;
+      arabicText.textContent = quotes[currentQuoteIndex].arabic;
+      quoteText.textContent = quotes[currentQuoteIndex].english;
+    }
+
+    quoteCard.addEventListener("click", displayNextQuote);
+  </script>
+</body>
+</html>
